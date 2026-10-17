@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trend Traffic Exchange</title>
+<style>
+:root{--bg:#0b1020;--panel:#131b31;--panel2:#192440;--text:#f4f7ff;--muted:#a8b5d1;--accent:#62e6b5;--blue:#7ba7ff;--line:#2a3858;--danger:#ff9292}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#0b1020,#111b35);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}header{padding:22px max(18px,calc((100% - 1100px)/2));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap} .brand{font-size:21px;font-weight:800;letter-spacing:.2px}.brand span{color:var(--accent)}main{max-width:1100px;margin:26px auto;padding:0 18px}.hero{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(120deg,#182743,#142039);margin-bottom:20px}.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:0 0 12px}.hero p{color:var(--muted);max-width:680px;margin:0}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;grid-column:span 6;min-width:0}.wide{grid-column:span 12}.third{grid-column:span 4}.card h2{font-size:18px;margin:0 0 12px}.muted{color:var(--muted)}label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}input,select{width:100%;padding:11px 12px;background:#0c1428;border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit}button,.button{border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#082016;font-weight:750;cursor:pointer;text-decoration:none;display:inline-block;font:inherit;font-weight:750}button.secondary,.button.secondary{background:#253554;color:var(--text);border:1px solid #3b4d72}button:disabled{opacity:.5;cursor:not-allowed}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.stat{font-size:30px;font-weight:850;color:var(--accent)}.pill{font-size:12px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);display:inline-block}.item{border-top:1px solid var(--line);padding:14px 0;display:flex;gap:12px;justify-content:space-between;align-items:center}.item:first-child{border-top:0}.item strong{display:block}.item small{color:var(--muted);display:block;overflow-wrap:anywhere}.notice{padding:12px 14px;border:1px solid #42624f;background:#142b27;border-radius:12px;color:#d4ffed;margin:12px 0}.warning{border-color:#735c31;background:#302817;color:#ffe6ae}.hidden{display:none!important}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{background:#192440;color:var(--text);border:1px solid var(--line)}.tab.active{background:var(--accent);color:#082016}.footer{color:var(--muted);font-size:12px;margin:24px 0 40px}.error{color:var(--danger)}@media(max-width:720px){.card,.third{grid-column:span 12}header{padding:16px}main{margin-top:16px}.hero{padding:22px}}
+</style>
+</head>
+<body>
+<header><div class="brand">TREND <span>TRAFFIC EXCHANGE</span></div><div class="row" style="flex:0"><span id="userLabel" class="muted">Not signed in</span><button id="signOut" class="secondary hidden">Sign out</button></div></header>
+<main>
+<section class="hero"><h1>Earn credits. Promote what matters.</h1><p>A simple credit-based exchange for website discovery and social campaign promotion. Complete eligible tasks to earn credits, then use credits to submit campaigns.</p></section>
+<div id="setupNotice" class="notice warning hidden">Setup needed: add your Supabase Project URL and anon key in <b>app.js</b> (or index.html configuration section) after creating your free Supabase project. See README.</div>
+<div id="message" class="notice hidden" role="status"></div>
+<section id="auth" class="grid">
+ <div class="card"><h2>Create your account</h2><p class="muted">Use a real email address. Confirm your email if Supabase asks you to.</p><label>Email</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="signupPass" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters"><p><button id="signupBtn">Create account</button></p></div>
+ <div class="card"><h2>Welcome back</h2><p class="muted">Sign in to view your credits and campaigns.</p><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>Password</label><input id="loginPass" type="password" autocomplete="current-password"><p><button id="loginBtn">Sign in</button></p><button id="resetBtn" class="secondary">Send password reset</button></div>
+</section>
+<section id="app" class="hidden">
+ <div class="grid" style="margin-bottom:18px">
+  <div class="card third"><div class="muted">Available credits</div><div id="credits" class="stat">0</div><div class="muted">Credits are managed by the database.</div></div>
+  <div class="card third"><div class="muted">My campaigns</div><div id="campaignCount" class="stat">0</div><div class="muted">Submitted campaigns</div></div>
+  <div class="card third"><div class="muted">Account</div><div id="role" class="stat" style="font-size:22px">Member</div><div id="emailDisplay" class="muted"></div></div>
+ </div>
+ <nav class="tabs"><button class="tab active" data-tab="tasks">Earn credits</button><button class="tab" data-tab="campaigns">Campaigns</button><button class="tab" data-tab="new">Create campaign</button><button class="tab hidden" id="adminTab" data-tab="admin">Admin</button></nav>
+ <section id="panel-tasks" class="grid"><div class="card wide"><h2>Available tasks</h2><p class="muted">Open a campaign, review the destination, and confirm completion. Credits are awarded by a server-side database function, with per-task limits.</p><div id="taskList"><p class="muted">Loading tasks…</p></div></div></section>
+ <section id="panel-campaigns" class="grid hidden"><div class="card wide"><h2>Campaign marketplace</h2><p class="muted">Active campaigns from members. Only promote content you have permission to share.</p><div id="marketList"></div></div><div class="card wide"><h2>My campaigns</h2><div id="myCampaigns"></div></div></section>
+ <section id="panel-new" class="grid hidden"><div class="card wide"><h2>Create a campaign</h2><p class="muted">A campaign costs 20 credits to list. This first version uses a fixed credit price and basic moderation.</p><div class="row"><div><label>Campaign title</label><input id="campaignTitle" maxlength="80" placeholder="Example: Read our latest sports analysis"></div><div><label>Campaign type</label><select id="campaignType"><option value="website">Website visit</option><option value="facebook">Facebook campaign</option><option value="youtube">YouTube campaign</option></select></div></div><label>Destination URL (https://)</label><input id="campaignUrl" type="url" placeholder="https://example.com/article"><label>Short description</label><input id="campaignDescription" maxlength="180" placeholder="Tell members what they will find"><p><button id="createCampaignBtn">Create campaign · 20 credits</button></p><p class="muted">Social actions such as likes, follows, subscriptions, or ad clicks may violate platform rules. Use campaigns for genuine discovery, not fake engagement or advertising manipulation.</p></div></section>
+ <section id="panel-admin" class="grid hidden"><div class="card wide"><h2>Admin dashboard</h2><p class="muted">Only accounts whose user ID is added to the admin table in Supabase can see this panel. Review campaigns and deactivate anything abusive.</p><div id="adminList"></div></div></section>
+</section>
+<div class="footer">Trend Traffic Exchange · Starter build. Never use incentivized traffic for AdSense or other ad impressions/clicks. Traffic quality and platform compliance matter.</div>
+</main>
+<script>
+/* CONFIGURATION: replace these two values with your Supabase project values. */
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const $ = id => document.getElementById(id);
+let sb=null, session=null, profile=null, campaigns=[];
+function msg(t,err=false){$('message').textContent=t;$('message').classList.remove('hidden');$('message').classList.toggle('error',err);if(!err)$('message').classList.add('notice')}
+function clearMsg(){$('message').classList.add('hidden')}
+function safeUrl(u){try{const x=new URL(u);return x.protocol==='https:'?x.href:null}catch{return null}}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showApp(on){$('auth').classList.toggle('hidden',on);$('app').classList.toggle('hidden',!on);$('signOut').classList.toggle('hidden',!on);$('userLabel').textContent=on?(session?.user?.email||'Signed in'):'Not signed in'}
+function setTab(tab){document.querySelectorAll('[id^="panel-"]').forEach(x=>x.classList.add('hidden'));$('panel-'+tab).classList.remove('hidden');document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab))}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+async function refresh(){
+ if(!session)return;
+ const {data:p,error:pe}=await sb.from('profiles').select('id,email,credits,is_admin').eq('id',session.user.id).maybeSingle();
+ if(pe){msg(pe.message,true);return} profile=p;
+ if(!profile){msg('Your profile is still being created. Sign out and back in, or check the database setup.',true);return}
+ $('credits').textContent=profile.credits;$('role').textContent=profile.is_admin?'Admin':'Member';$('emailDisplay').textContent=profile.email||session.user.email;$('adminTab').classList.toggle('hidden',!profile.is_admin);
+ const {data:c,error:ce}=await sb.from('campaigns').select('id,user_id,title,kind,url,description,status,created_at').order('created_at',{ascending:false}).limit(100);
+ if(ce){msg(ce.message,true);return} campaigns=c||[];$('campaignCount').textContent=campaigns.filter(x=>x.user_id===session.user.id).length;
+ renderTasks();renderMarket();renderMine();if(profile.is_admin)renderAdmin();
+}
+function renderTasks(){
+ const active=campaigns.filter(c=>c.status==='active'&&c.user_id!==session.user.id);
+ $('taskList').innerHTML=active.length?active.map(c=>`<div class="item"><div><strong>${escapeHtml(c.title)} <span class="pill">${escapeHtml(c.kind)}</span></strong><small>${escapeHtml(c.description||'')}</small><small>Earn 1 credit · ${escapeHtml(c.url)}</small></div><button data-task="${c.id}">Open task</button></div>`).join(''):'<p class="muted">No eligible tasks right now. Check back later or invite a friend to create a campaign.</p>';
+ document.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>openTask(b.dataset.task));
+}
+function renderMarket(){
+ const active=campaigns.filter(c=>c.status==='active');
+ $('marketList').innerHTML=active.length?active.map(c=>`<div class="item"><div><strong>${escapeHtml(c.title)} <span class="pill">${escapeHtml(c.kind)}</span></strong><small>${escapeHtml(c.description||'')}</small><small>${escapeHtml(c.url)}</small></div><a class="button secondary" href="${escapeHtml(c.url)}" target="_blank" rel="noopener noreferrer">Visit</a></div>`).join(''):'<p class="muted">No active campaigns yet.</p>';
+}
+function renderMine(){
+ const mine=campaigns.filter(c=>c.user_id===session.user.id);
+ $('myCampaigns').innerHTML=mine.length?mine.map(c=>`<div class="item"><div><strong>${escapeHtml(c.title)} <span class="pill">${escapeHtml(c.status)}</span></strong><small>${escapeHtml(c.kind)} · ${escapeHtml(c.url)}</small></div></div>`).join(''):'<p class="muted">You have not created a campaign yet.</p>';
+}
+function renderAdmin(){
+ $('adminList').innerHTML=campaigns.map(c=>`<div class="item"><div><strong>${escapeHtml(c.title)} <span class="pill">${escapeHtml(c.status)}</span></strong><small>${escapeHtml(c.kind)} · ${escapeHtml(c.url)} · user ${escapeHtml(c.user_id)}</small></div>${c.status==='active'?`<button class="secondary" data-disable="${c.id}">Deactivate</button>`:''}</div>`).join('')||'<p class="muted">No campaigns yet.</p>';
+ document.querySelectorAll('[data-disable]').forEach(b=>b.onclick=async()=>{const {error}=await sb.rpc('admin_deactivate_campaign',{p_campaign_id:b.dataset.disable});if(error)msg(error.message,true);else{msg('Campaign deactivated.');await refresh()}});
+}
+async function openTask(id){
+ const c=campaigns.find(x=>x.id===id);if(!c)return;
+ const url=safeUrl(c.url);if(!url){msg('This campaign URL is invalid.',true);return}
+ window.open(url,'_blank','noopener,noreferrer');
+ const ok=confirm('After you have genuinely reviewed the destination, confirm completion to request 1 credit. Do not click ads or perform fake likes/follows.');
+ if(!ok)return;
+ const {data,error}=await sb.rpc('complete_task',{p_campaign_id:id});
+ if(error)msg(error.message,true);else{msg('Task completion recorded. Credits added: '+data);await refresh()}
+}
+$('signupBtn').onclick=async()=>{clearMsg();const email=$('signupEmail').value.trim(),password=$('signupPass').value;if(!email||password.length<8)return msg('Enter an email and a password of at least 8 characters.',true);const {data,error}=await sb.auth.signUp({email,password});if(error)return msg(error.message,true);msg(data.session?'Account created. You are signed in.':'Account created. Check your email to confirm, then sign in.');if(data.session){session=data.session;showApp(true);await refresh()}};
+$('loginBtn').onclick=async()=>{clearMsg();const {data,error}=await sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPass').value});if(error)return msg(error.message,true);session=data.session;showApp(true);await refresh()};
+$('resetBtn').onclick=async()=>{const email=$('loginEmail').value.trim();if(!email)return msg('Enter your email in the sign-in email field first.',true);const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href});msg(error?error.message:'If the email exists, a password reset link has been sent.',!!error)};
+$('signOut').onclick=async()=>{await sb.auth.signOut();session=null;profile=null;showApp(false);clearMsg()};
+$('createCampaignBtn').onclick=async()=>{clearMsg();const title=$('campaignTitle').value.trim(),kind=$('campaignType').value,url=safeUrl($('campaignUrl').value.trim()),description=$('campaignDescription').value.trim();if(title.length<4||!url)return msg('Enter a title of at least 4 characters and a valid HTTPS URL.',true);if(!confirm('Create this campaign for 20 credits?'))return;const {data,error}=await sb.rpc('create_campaign',{p_title:title,p_kind:kind,p_url:url,p_description:description});if(error)return msg(error.message,true);msg('Campaign created and 20 credits deducted.');$('campaignTitle').value='';$('campaignUrl').value='';$('campaignDescription').value='';await refresh();setTab('campaigns')};
+(async()=>{
+ if(SUPABASE_URL.startsWith('YOUR_')||SUPABASE_ANON_KEY.startsWith('YOUR_')||!window.supabase){$('setupNotice').classList.remove('hidden');return}
+ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ const {data}=await sb.auth.getSession();session=data.session;if(session){showApp(true);await refresh()}
+ sb.auth.onAuthStateChange((_event,s)=>{session=s;if(s){showApp(true);setTimeout(refresh,0)}else{showApp(false)}});
+})();
+</script>
+</body></html>
